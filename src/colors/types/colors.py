@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 from typing import Tuple
 
-from src.colors.utils.gen_docstring import generate_colorclass_docstring
+from src.colors.utils.get_setter_decorator import channel_getter_setter
 
 from .numeric import (
     Float01,
@@ -16,310 +15,268 @@ from .numeric import (
     Zd50,
     Zd65,
 )
-from .space import BaseColorSpace, DefaultChannelOutOfBounds
+from .space import BaseColorSpace
+from .validators import (
+    validate_float01,
+    validate_float8,
+    validate_float100,
+    validate_float360,
+    validate_float_oklab,
+    validate_float_oklch,
+    validate_uint8,
+    validate_Xd50,
+    validate_Xd65,
+    validate_Zd50,
+    validate_Zd65,
+)
 
 
-@dataclass
+# ─────────────────────────────────────────────────────────────────────────────
+# Color Implementations
+# ─────────────────────────────────────────────────────────────────────────────
+@channel_getter_setter("red", validate_uint8)
+@channel_getter_setter("green", validate_uint8)
+@channel_getter_setter("blue", validate_uint8)
+@channel_getter_setter("alpha", validate_float01)
 class sRGB(BaseColorSpace):
-    red: Uint8
-    green: Uint8
-    blue: Uint8
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_uint8("red", self.red)
-        self._validate_uint8("green", self.green)
-        self._validate_uint8("blue", self.blue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
+        self.red = r
+        self.green = g
+        self.blue = b
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         return (self.red, self.green, self.blue)
 
 
-@dataclass
+@channel_getter_setter("hue", validate_float360)
+@channel_getter_setter("saturation", validate_float01)
+@channel_getter_setter("value", validate_float01)
+@channel_getter_setter("alpha", validate_float01)
 class HSV(BaseColorSpace):
-    hue: Float360
-    saturation: Float01
-    value: Float01
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_float360("hue", self.hue)
-        self._validate_float01("saturation", self.saturation)
-        self._validate_float01("value", self.value)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, h: Float360, s: Float01, v: Float01, a: Float01 = 1.0) -> None:
+        self.hue = h
+        self.saturation = s
+        self.value = v
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("hue", validate_float360)
+@channel_getter_setter("saturation", validate_float01)
+@channel_getter_setter("lightness", validate_float01)
+@channel_getter_setter("alpha", validate_float01)
 class HSL(BaseColorSpace):
-    hue: Float360
-    saturation: Float01
-    lightness: Float01
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_float360("hue", self.hue)
-        self._validate_float01("saturation", self.saturation)
-        self._validate_float01("lightness", self.lightness)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, h: Float360, s: Float01, L: Float01, a: Float01 = 1.0) -> None:
+        self.hue = h
+        self.saturation = s
+        self.lightness = L
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("hue", validate_float360)
+@channel_getter_setter("whiteness", validate_float01)
+@channel_getter_setter("blackness", validate_float01)
+@channel_getter_setter("alpha", validate_float01)
 class HWB(BaseColorSpace):
-    hue: Float360
-    whiteness: Float01
-    blackness: Float01
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_float360("hue", self.hue)
-        self._validate_float01("saturation", self.whiteness)
-        self._validate_float01("lightness", self.blackness)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, h: Float360, w: Float01, b: Float01, a: Float01 = 1.0) -> None:
+        self.hue = h
+        self.whiteness = w
+        self.blackness = b
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("red", validate_uint8)
+@channel_getter_setter("green", validate_uint8)
+@channel_getter_setter("blue", validate_uint8)
+@channel_getter_setter("alpha", validate_float01)
 class DisplayP3(BaseColorSpace):
-    red: Uint8
-    green: Uint8
-    blue: Uint8
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_uint8("red", self.red)
-        self._validate_uint8("green", self.green)
-        self._validate_uint8("blue", self.blue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
+        self.red = r
+        self.green = g
+        self.blue = b
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("red", validate_uint8)
+@channel_getter_setter("green", validate_uint8)
+@channel_getter_setter("blue", validate_uint8)
+@channel_getter_setter("alpha", validate_float01)
 class Rec2020(BaseColorSpace):
-    red: Uint8
-    green: Uint8
-    blue: Uint8
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_uint8("red", self.red)
-        self._validate_uint8("green", self.green)
-        self._validate_uint8("blue", self.blue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
+        self.red = r
+        self.green = g
+        self.blue = b
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("red", validate_uint8)
+@channel_getter_setter("green", validate_uint8)
+@channel_getter_setter("blue", validate_uint8)
+@channel_getter_setter("alpha", validate_float01)
 class A98RGB(BaseColorSpace):
-    red: Uint8
-    green: Uint8
-    blue: Uint8
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_uint8("red", self.red)
-        self._validate_uint8("green", self.green)
-        self._validate_uint8("blue", self.blue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
+        self.red = r
+        self.green = g
+        self.blue = b
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("red", validate_uint8)
+@channel_getter_setter("green", validate_uint8)
+@channel_getter_setter("blue", validate_uint8)
+@channel_getter_setter("alpha", validate_float01)
 class ProPhotoRGB(BaseColorSpace):
-    red: Uint8
-    green: Uint8
-    blue: Uint8
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_uint8("red", self.red)
-        self._validate_uint8("green", self.green)
-        self._validate_uint8("blue", self.blue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
+        self.red = r
+        self.green = g
+        self.blue = b
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("lightness", validate_float100)
+@channel_getter_setter("a_channel", validate_float8)
+@channel_getter_setter("b_channel", validate_float8)
+@channel_getter_setter("alpha", validate_float01)
 class CIELAB(BaseColorSpace):
-    lightness: Float100
-    a_channel: Float8
-    b_channel: Float8
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_float100("lightness", self.lightness)
-        self._validate_float8("a_channel", self.a_channel)
-        self._validate_float8("b_channel", self.b_channel)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, L: Float100, a: Float8, b: Float8, alpha: Float01 = 1.0) -> None:
+        self.lightness = L
+        self.a_channel = a
+        self.b_channel = b
+        self.alpha = alpha
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("lightness", validate_float100)
+@channel_getter_setter("chroma", validate_float100)
+@channel_getter_setter("hue", validate_float360)
+@channel_getter_setter("alpha", validate_float01)
 class LCH(BaseColorSpace):
-    lightness: Float100
-    chroma: Float100
-    hue: Float360
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_float100("lightness", self.lightness)
-        self._validate_float100("chroma", self.chroma)
-        self._validate_float360("hue", self.hue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, L: Float100, c: Float100, h: Float360, a: Float01 = 1.0) -> None:
+        self.lightness = L
+        self.chroma = c
+        self.hue = h
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("lightness", validate_float100)
+@channel_getter_setter("a_channel", validate_float_oklab)
+@channel_getter_setter("b_channel", validate_float_oklab)
+@channel_getter_setter("alpha", validate_float01)
 class Oklab(BaseColorSpace):
-    lightness: Float100
-    a_channel: FloatOklab
-    b_channel: FloatOklab
-    alpha: Float01 = 1.0
-
-    def _validate_float_oklab(self, name: str, value: FloatOklab) -> None:
-        if not (-0.4 <= value <= 0.4):
-            raise DefaultChannelOutOfBounds(name, value, (-0.4, 0.4))
-
-    def __post_init__(self) -> None:
-        self._validate_float100("lightness", self.lightness)
-        self._validate_float_oklab("a_channel", self.a_channel)
-        self._validate_float_oklab("b_channel", self.b_channel)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(
+        self, L: Float100, a: FloatOklab, b: FloatOklab, alpha: Float01 = 1.0
+    ) -> None:
+        self.lightness = L
+        self.a_channel = a
+        self.b_channel = b
+        self.alpha = alpha
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("lightness", validate_float100)
+@channel_getter_setter("chroma", validate_float_oklch)
+@channel_getter_setter("hue", validate_float360)
+@channel_getter_setter("alpha", validate_float01)
 class Oklch(BaseColorSpace):
-    lightness: Float100
-    chroma: FloatOklch
-    hue: Float360
-    alpha: Float01 = 1.0
-
-    def _validate_float_oklch(self, name: str, value: FloatOklch) -> None:
-        if not (-0.4 <= value <= 0.4):
-            raise DefaultChannelOutOfBounds(name, value, (-0.4, 0.4))
-
-    def __post_init__(self) -> None:
-        self._validate_float100("lightness", self.lightness)
-        self._validate_float_oklch("chroma", self.chroma)
-        self._validate_float360("hue", self.hue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(
+        self, L: Float100, c: FloatOklch, h: Float360, a: Float01 = 1.0
+    ) -> None:
+        self.lightness = L
+        self.chroma = c
+        self.hue = h
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("X", validate_Xd65)
+@channel_getter_setter("Y", validate_float100)
+@channel_getter_setter("Z", validate_Zd65)
+@channel_getter_setter("alpha", validate_float01)
 class XYZd65(BaseColorSpace):
-    X: Xd65
-    Y: Float100
-    Z: Zd65
-    alpha: Float01 = 1.0
-
-    def _validate_Xd65(self, name: str, value: Xd65) -> None:
-        if not (0.0 <= value <= 95.047):
-            raise DefaultChannelOutOfBounds(name, value, (0.0, 95.047))
-
-    def _validate_Zd65(self, name: str, value: Zd65) -> None:
-        if not (0.0 <= value <= 108.883):
-            raise DefaultChannelOutOfBounds(name, value, (0.0, 108.883))
-
-    def __post_init__(self) -> None:
-        self._validate_float100("X", self.X)
-        self._validate_Xd65("Y", self.Y)
-        self._validate_float360("Z", self.Z)
-        self._validate_Zd65("alpha", self.alpha)
+    def __init__(self, X: Xd65, Y: Float100, Z: Zd65, a: Float01 = 1.0) -> None:
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("X", validate_Xd50)
+@channel_getter_setter("Y", validate_float100)
+@channel_getter_setter("Z", validate_Zd50)
+@channel_getter_setter("alpha", validate_float01)
 class XYZd50(BaseColorSpace):
-    X: Xd50
-    Y: Float100
-    Z: Zd50
-    alpha: Float01 = 1.0
-
-    def _validate_Xd50(self, name: str, value: Xd50) -> None:
-        if not (0.0 <= value <= 96.6797):
-            raise DefaultChannelOutOfBounds(name, value, (0.0, 96.6797))
-
-    def _validate_Zd50(self, name: str, value: Zd50) -> None:
-        if not (0.0 <= value <= 82.5188):
-            raise DefaultChannelOutOfBounds(name, value, (0.0, 82.5188))
-
-    def __post_init__(self) -> None:
-        self._validate_float100("X", self.X)
-        self._validate_Xd50("Y", self.Y)
-        self._validate_float360("Z", self.Z)
-        self._validate_Zd50("alpha", self.alpha)
+    def __init__(self, X: Xd50, Y: Float100, Z: Zd50, a: Float01 = 1.0) -> None:
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("red", validate_float01)
+@channel_getter_setter("green", validate_float01)
+@channel_getter_setter("blue", validate_float01)
+@channel_getter_setter("alpha", validate_float01)
 class sRGBLinear(BaseColorSpace):
-    red: Float01
-    green: Float01
-    blue: Float01
-    alpha: Float01 = 1.0
-
-    def __post_init__(self) -> None:
-        self._validate_float01("red", self.red)
-        self._validate_float01("green", self.green)
-        self._validate_float01("blue", self.blue)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(self, r: Float01, g: Float01, b: Float01, a: Float01 = 1.0) -> None:
+        self.red = r
+        self.green = g
+        self.blue = b
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
 
 
-@dataclass
+@channel_getter_setter("cyan", validate_float01)
+@channel_getter_setter("magenta", validate_float01)
+@channel_getter_setter("yellow", validate_float01)
+@channel_getter_setter("black", validate_float01, "k")
+@channel_getter_setter("alpha", validate_float01)
 class CMYK(BaseColorSpace):
-    cyan: Float01
-    magenta: Float01
-    yellow: Float01
-    black: Float01
-    alpha: Float01
-
-    def __post_init__(self) -> None:
-        self._validate_float01("cyan", self.cyan)
-        self._validate_float01("magenta", self.magenta)
-        self._validate_float01("yellow", self.yellow)
-        self._validate_float01("black", self.black)
-        self._validate_float01("alpha", self.alpha)
+    def __init__(
+        self, c: Float01, m: Float01, y: Float01, k: Float01, a: Float01 = 1.0
+    ) -> None:
+        self.cyan = c
+        self.magenta = m
+        self.yellow = y
+        self.black = k
+        self.alpha = a
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError
-
-
-def main() -> None:
-    print(generate_colorclass_docstring(sRGB))
-
-
-if __name__ == "__main__":
-    main()
