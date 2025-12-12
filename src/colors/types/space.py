@@ -14,4 +14,4 @@ class BaseColorSpace(ABC):
     def __str__(self) -> str:
         """Ansii representation"""
         r, g, b = self.to_rgb()
-        return f"2;{r};g;b"
+        return f"2;{r};{g};{b}"
