@@ -1,5 +1,5 @@
 from ast import literal_eval
-from typing import Mapping, get_args
+from typing import Optional, Tuple, get_args
 
 from src.colors.types.space import BaseColorSpace
 
@@ -40,16 +40,16 @@ def generate_description_section(
 ) -> str:
     desc = """Description
 -----------
-Instances store channel values internally and expose them via the
+Instances store channel values internally and expose them via the properties 
 """
     for comp_name in components.keys():
-        desc += f"properties `{comp_name}`"
+        desc += f"`{comp_name}`"
         if comp_name != list(components.keys())[-1]:
             desc += ", "
-    desc += ". Each property provides a getter and a setter."
-    desc += " Setters validate that the provided value is within the\n"
+    desc += ".\nEach property provides a getter and a setter."
+    desc += "\nSetters validate that the provided value is within the\n"
     desc += "allowed range and will raise DefaultChannelOutOfBounds(channel, value)"
-    desc += " if the value is outside that range.\n"
+    desc += "\nif the value is outside that range.\n"
     return desc
 
 
@@ -92,39 +92,107 @@ def generate_space_docstring(
     name: str,
     components: dict[str, str],  # name, alias
     ranges: dict[str, tuple[int | float, int | float]],
+    attr_mapping: Optional[dict[str, str]],
 ) -> str:
+    if attr_mapping is None:
+        attr_mapping = {}
+    mapped_components: dict[str, str] = {
+        comp: attr_mapping[comp] if comp in attr_mapping else short
+        for comp, short in components.items()
+    }
     docstring = ""
     docstring += generate_title_description(name)
     docstring += "\n"
-    docstring += generate_parameters_description(components, ranges)
+    docstring += generate_parameters_description(mapped_components, ranges)
     docstring += "\n"
     docstring += generate_description_section(components)
     docstring += "\n"
     docstring += generate_properties_section(components, ranges)
     docstring += "\n"
-    docstring += generate_notes_section(components)
+    docstring += generate_notes_section(mapped_components)
     return docstring
 
 
-def generate_colorclass_docstring(cls: type[BaseColorSpace]) -> str:
-    name = cls.__name__
-    components: Mapping[str, str] = {
-        item: item[0] for item in cls.__annotations__.keys()
+def get_annotations(
+    cls: BaseColorSpace,
+) -> tuple[dict[str, str], dict[str, tuple[int | float, int | float]]]:
+    properties: dict[str, property] = {
+        name: attr
+        for name, attr in cls.__dict__.items().__reversed__()
+        if isinstance(attr, property)
     }
-    ranges = {}
-    for item, type_ in cls.__annotations__.items():
-        # Get arguments from Annotated (e.g., Annotated[int, "[0, 255]"])
-        args = get_args(type_)
+    components: dict[str, str] = {}  # full name → short alias (first letter)
+    ranges: dict[str, Tuple[int | float, int | float]] = {}
+    for comp_name, prop in properties.items():
+        components[comp_name] = comp_name[0].lower()
+        range_: str = get_args(prop.fget.__annotations__["return"])[1]
+        try:
+            # Parse the string "[min, max]" into a tuple/list
+            min_val, max_val = literal_eval(range_)
+            ranges[comp_name] = (min_val, max_val)
+        except (ValueError, SyntaxError):
+            # Handle cases where metadata isn't a valid range string
+            print(f"Warning: Could not parse range for {comp_name} from {range_}")
+            continue
+    return components, ranges
 
-        # args[0] is the type, args[1] is the metadata string
-        if len(args) > 1 and isinstance(args[1], str):
-            try:
-                # Parse the string "[min, max]" into a tuple/list
-                min_val, max_val = literal_eval(args[1])
-                ranges[item] = (min_val, max_val)
-            except (ValueError, SyntaxError):
-                # Handle cases where metadata isn't a valid range string
-                print(f"Warning: Could not parse range for {item} from {args[1]}")
-                continue
 
-    return generate_space_docstring(name, components, ranges)
+def generate_colorclass_docstring(
+    cls: BaseColorSpace,
+    attr_mapping: Optional[dict[str, str]] = None,
+) -> str:
+    name: str = cls.__name__
+    components, ranges = get_annotations(cls)
+
+    return generate_space_docstring(name, components, ranges, attr_mapping)
+
+
+if __name__ == "__main__":
+    from src.colors.types.colors import (
+        A98RGB,
+        CIELAB,
+        CMYK,
+        HSL,
+        HSV,
+        HWB,
+        LCH,
+        DisplayP3,
+        Oklab,
+        Oklch,
+        ProPhotoRGB,
+        Rec2020,
+        XYZd50,
+        XYZd65,
+        sRGB,
+        sRGBLinear,
+    )
+
+    color_classes = [
+        sRGB,
+        HSV,
+        HSL,
+        HWB,
+        DisplayP3,
+        Rec2020,
+        A98RGB,
+        ProPhotoRGB,
+        CIELAB,
+        LCH,
+        Oklab,
+        Oklch,
+        XYZd65,
+        XYZd50,
+        sRGBLinear,
+        CMYK,
+    ]
+    for color_class in color_classes:
+        print("─" * 40)
+        print("\n\n")
+
+        if color_class != CMYK:
+            print(generate_colorclass_docstring(color_class))
+        else:
+            print(generate_colorclass_docstring(color_class, {"black": "k"}))
+
+        print("\n\n")
+        input("Press Enter to continue...")
