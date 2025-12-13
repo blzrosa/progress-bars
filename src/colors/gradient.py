@@ -58,6 +58,9 @@ class Gradient:
         self,
         t: Float01,
     ) -> ColorWithBackground:
+        if len(self.color_positions) == 1:
+            return self.color_positions[0][1]
+
         if t <= self.color_positions[0][0]:
             return self.color_positions[0][1]
         if t >= self.color_positions[-1][0]:
