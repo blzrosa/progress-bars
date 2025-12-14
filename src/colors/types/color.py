@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import Optional
+from abc import abstractmethod
+from typing import Optional, TypeVar, overload
 
-from src.colors.types.colors import sRGB
-from src.colors.types.space import BaseColorSpace
+from src.colors.types.color_space import ColorSpace
+from src.colors.types.color_spaces import sRGB
 
 
-class Color(ABC):
+class Color:
     foreground: sRGB
     background: Optional[sRGB]
 
@@ -19,7 +19,7 @@ class Color(ABC):
 
 
 class ColorWithoutBackground(Color):
-    def __init__(self, foreground: BaseColorSpace) -> None:
+    def __init__(self, foreground: ColorSpace) -> None:
         self.foreground: sRGB = sRGB(*foreground.to_rgb())
         self.background = None
 
@@ -40,7 +40,7 @@ class ColorWithoutBackground(Color):
 
 
 class ColorWithBackground(Color):
-    def __init__(self, foreground: BaseColorSpace, background: BaseColorSpace) -> None:
+    def __init__(self, foreground: ColorSpace, background: ColorSpace) -> None:
         self.foreground: sRGB = sRGB(*foreground.to_rgb())
         self.background: sRGB = sRGB(*background.to_rgb())
 
@@ -72,3 +72,21 @@ class ColorWithBackground(Color):
         )
 
         return ColorWithBackground(new_foreground, new_background)
+
+
+ColorType = TypeVar("ColorType", ColorWithoutBackground, ColorWithBackground)
+
+
+@overload
+def color(foreground: ColorSpace) -> ColorWithoutBackground: ...
+@overload
+def color(foreground: ColorSpace, background: ColorSpace) -> ColorWithBackground: ...
+
+
+def color(foreground: ColorSpace, background: Optional[ColorSpace] = None) -> Color:
+    fg = sRGB.from_color(foreground)
+    if background is None:
+        return ColorWithoutBackground(fg)
+    else:
+        bg = sRGB.from_color(background)
+        return ColorWithBackground(fg, bg)

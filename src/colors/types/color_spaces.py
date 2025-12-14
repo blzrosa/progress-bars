@@ -2,6 +2,7 @@ from typing import Tuple
 
 from src.colors.utils.get_setter_decorator import channel_getter_setter
 
+from .color_space import ColorSpace
 from .numeric import (
     Float01,
     Float8,
@@ -15,7 +16,6 @@ from .numeric import (
     Zd50,
     Zd65,
 )
-from .space import BaseColorSpace
 from .validators import (
     validate_float01,
     validate_float8,
@@ -38,12 +38,17 @@ from .validators import (
 @channel_getter_setter("green", validate_uint8)
 @channel_getter_setter("blue", validate_uint8)
 @channel_getter_setter("alpha", validate_float01)
-class sRGB(BaseColorSpace):
+class sRGB(ColorSpace):
     def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
         self.red = r
         self.green = g
         self.blue = b
         self.alpha = a
+
+    @classmethod
+    def from_color(cls, color: ColorSpace) -> "sRGB":
+        rgb = color.to_rgb()
+        return cls(*rgb, color.alpha)
 
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         return (self.red, self.green, self.blue)
@@ -53,7 +58,7 @@ class sRGB(BaseColorSpace):
 @channel_getter_setter("saturation", validate_float01)
 @channel_getter_setter("value", validate_float01)
 @channel_getter_setter("alpha", validate_float01)
-class HSV(BaseColorSpace):
+class HSV(ColorSpace):
     def __init__(self, h: Float360, s: Float01, v: Float01, a: Float01 = 1.0) -> None:
         self.hue = h
         self.saturation = s
@@ -68,7 +73,7 @@ class HSV(BaseColorSpace):
 @channel_getter_setter("saturation", validate_float01)
 @channel_getter_setter("lightness", validate_float01)
 @channel_getter_setter("alpha", validate_float01)
-class HSL(BaseColorSpace):
+class HSL(ColorSpace):
     def __init__(self, h: Float360, s: Float01, L: Float01, a: Float01 = 1.0) -> None:
         self.hue = h
         self.saturation = s
@@ -83,7 +88,7 @@ class HSL(BaseColorSpace):
 @channel_getter_setter("whiteness", validate_float01)
 @channel_getter_setter("blackness", validate_float01)
 @channel_getter_setter("alpha", validate_float01)
-class HWB(BaseColorSpace):
+class HWB(ColorSpace):
     def __init__(self, h: Float360, w: Float01, b: Float01, a: Float01 = 1.0) -> None:
         self.hue = h
         self.whiteness = w
@@ -98,7 +103,7 @@ class HWB(BaseColorSpace):
 @channel_getter_setter("green", validate_uint8)
 @channel_getter_setter("blue", validate_uint8)
 @channel_getter_setter("alpha", validate_float01)
-class DisplayP3(BaseColorSpace):
+class DisplayP3(ColorSpace):
     def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
         self.red = r
         self.green = g
@@ -113,7 +118,7 @@ class DisplayP3(BaseColorSpace):
 @channel_getter_setter("green", validate_uint8)
 @channel_getter_setter("blue", validate_uint8)
 @channel_getter_setter("alpha", validate_float01)
-class Rec2020(BaseColorSpace):
+class Rec2020(ColorSpace):
     def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
         self.red = r
         self.green = g
@@ -128,7 +133,7 @@ class Rec2020(BaseColorSpace):
 @channel_getter_setter("green", validate_uint8)
 @channel_getter_setter("blue", validate_uint8)
 @channel_getter_setter("alpha", validate_float01)
-class A98RGB(BaseColorSpace):
+class A98RGB(ColorSpace):
     def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
         self.red = r
         self.green = g
@@ -143,7 +148,7 @@ class A98RGB(BaseColorSpace):
 @channel_getter_setter("green", validate_uint8)
 @channel_getter_setter("blue", validate_uint8)
 @channel_getter_setter("alpha", validate_float01)
-class ProPhotoRGB(BaseColorSpace):
+class ProPhotoRGB(ColorSpace):
     def __init__(self, r: Uint8, g: Uint8, b: Uint8, a: Float01 = 1.0) -> None:
         self.red = r
         self.green = g
@@ -158,7 +163,7 @@ class ProPhotoRGB(BaseColorSpace):
 @channel_getter_setter("a_channel", validate_float8)
 @channel_getter_setter("b_channel", validate_float8)
 @channel_getter_setter("alpha", validate_float01)
-class CIELAB(BaseColorSpace):
+class CIELAB(ColorSpace):
     def __init__(self, L: Float100, a: Float8, b: Float8, alpha: Float01 = 1.0) -> None:
         self.lightness = L
         self.a_channel = a
@@ -173,7 +178,7 @@ class CIELAB(BaseColorSpace):
 @channel_getter_setter("chroma", validate_float100)
 @channel_getter_setter("hue", validate_float360)
 @channel_getter_setter("alpha", validate_float01)
-class LCH(BaseColorSpace):
+class LCH(ColorSpace):
     def __init__(self, L: Float100, c: Float100, h: Float360, a: Float01 = 1.0) -> None:
         self.lightness = L
         self.chroma = c
@@ -188,7 +193,7 @@ class LCH(BaseColorSpace):
 @channel_getter_setter("a_channel", validate_float_oklab)
 @channel_getter_setter("b_channel", validate_float_oklab)
 @channel_getter_setter("alpha", validate_float01)
-class Oklab(BaseColorSpace):
+class Oklab(ColorSpace):
     def __init__(
         self, L: Float100, a: FloatOklab, b: FloatOklab, alpha: Float01 = 1.0
     ) -> None:
@@ -205,7 +210,7 @@ class Oklab(BaseColorSpace):
 @channel_getter_setter("chroma", validate_float_oklch)
 @channel_getter_setter("hue", validate_float360)
 @channel_getter_setter("alpha", validate_float01)
-class Oklch(BaseColorSpace):
+class Oklch(ColorSpace):
     def __init__(
         self, L: Float100, c: FloatOklch, h: Float360, a: Float01 = 1.0
     ) -> None:
@@ -222,7 +227,7 @@ class Oklch(BaseColorSpace):
 @channel_getter_setter("Y", validate_float100)
 @channel_getter_setter("Z", validate_Zd65)
 @channel_getter_setter("alpha", validate_float01)
-class XYZd65(BaseColorSpace):
+class XYZd65(ColorSpace):
     def __init__(self, X: Xd65, Y: Float100, Z: Zd65, a: Float01 = 1.0) -> None:
         self.X = X
         self.Y = Y
@@ -237,7 +242,7 @@ class XYZd65(BaseColorSpace):
 @channel_getter_setter("Y", validate_float100)
 @channel_getter_setter("Z", validate_Zd50)
 @channel_getter_setter("alpha", validate_float01)
-class XYZd50(BaseColorSpace):
+class XYZd50(ColorSpace):
     def __init__(self, X: Xd50, Y: Float100, Z: Zd50, a: Float01 = 1.0) -> None:
         self.X = X
         self.Y = Y
@@ -252,7 +257,7 @@ class XYZd50(BaseColorSpace):
 @channel_getter_setter("green", validate_float01)
 @channel_getter_setter("blue", validate_float01)
 @channel_getter_setter("alpha", validate_float01)
-class sRGBLinear(BaseColorSpace):
+class sRGBLinear(ColorSpace):
     def __init__(self, r: Float01, g: Float01, b: Float01, a: Float01 = 1.0) -> None:
         self.red = r
         self.green = g
@@ -268,7 +273,7 @@ class sRGBLinear(BaseColorSpace):
 @channel_getter_setter("yellow", validate_float01)
 @channel_getter_setter("black", validate_float01, "k")
 @channel_getter_setter("alpha", validate_float01)
-class CMYK(BaseColorSpace):
+class CMYK(ColorSpace):
     def __init__(
         self, c: Float01, m: Float01, y: Float01, k: Float01, a: Float01 = 1.0
     ) -> None:

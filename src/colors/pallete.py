@@ -1,13 +1,18 @@
-from typing import Iterator
+from typing import Generic, Iterator
 
-from .types import BaseGenerator, ColorWithBackground, Float01
-from .types.colors import sRGB
+from .types import (
+    ColorGenerator,
+    ColorType,
+    Float01,
+    color,
+)
+from .types.color_spaces import sRGB
 
 
-class Pallete:
+class Pallete(Generic[ColorType]):
     def __init__(
         self,
-        *colors: ColorWithBackground,
+        *colors: ColorType,
         positions: list[Float01] | None = None,
     ) -> None:
         if positions is None:
@@ -16,7 +21,7 @@ class Pallete:
             if len(positions) != len(colors):
                 raise ValueError("Length of positions must match length of colors")
             _positions = positions
-        self.color_positions: list[tuple[float, ColorWithBackground]] = sorted(
+        self.color_positions: list[tuple[float, ColorType]] = sorted(
             zip(_positions, colors, strict=True), key=lambda x: x[0]
         )
 
@@ -26,7 +31,7 @@ class Pallete:
     def get_color_at(
         self,
         t: Float01,
-    ) -> ColorWithBackground:
+    ) -> ColorType:
         if len(self.color_positions) == 1:
             return self.color_positions[0][1]
 
@@ -51,23 +56,23 @@ class Pallete:
         return color1
 
 
-class PalleteGenerator(BaseGenerator):
+class PalleteGenerator(ColorGenerator, Generic[ColorType]):
     def __init__(
         self,
         count: int,
-        *colors: ColorWithBackground,
+        pallete: Pallete[ColorType],
         repeat: bool = False,
     ) -> None:
         if count <= 0:
             raise ValueError("count must be >= 1")
         self._count = count
-        self._pallete = Pallete(*colors)
+        self._pallete = pallete
         self.repeat = repeat
 
     def __len__(self) -> int:
         return self._count
 
-    def __iter__(self) -> Iterator[ColorWithBackground]:
+    def __iter__(self) -> Iterator[ColorType]:
         if self._count == 1:
             yield self._pallete.get_color_at(0.0)
             return
@@ -81,16 +86,17 @@ class PalleteGenerator(BaseGenerator):
 
 
 if __name__ == "__main__":
-    red_on_black = ColorWithBackground(sRGB(255, 0, 0), sRGB(0, 0, 0))
-    green_on_white = ColorWithBackground(sRGB(0, 255, 0), sRGB(255, 255, 255))
-    gradient = Pallete(red_on_black, green_on_white)
+    red_on_black = color(sRGB(255, 0, 0), sRGB(0, 0, 0))
+    green_on_white = color(sRGB(0, 255, 0), sRGB(255, 255, 255))
+    pallete_bg = Pallete(red_on_black, green_on_white)
+    red = color(sRGB(255, 0, 0))
+    green = color(sRGB(0, 255, 0))
+    pallete_no_bg = Pallete(red, green)
 
-    for i, color in enumerate(PalleteGenerator(10, red_on_black, green_on_white)):
+    for i, color in enumerate(PalleteGenerator(10, pallete_bg)):
         print(f"\033[{color}m{'█' * 40} t={i:.1f} \033[0m")
 
     print("\n")
 
-    for i, color in enumerate(
-        PalleteGenerator(10, red_on_black, green_on_white, repeat=True)
-    ):
+    for i, color in enumerate(PalleteGenerator(10, pallete_no_bg, repeat=True)):
         print(f"\033[{color}m{'█' * 40} t={i:.1f} \033[0m")

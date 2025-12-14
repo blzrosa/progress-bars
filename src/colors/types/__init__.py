@@ -1,6 +1,7 @@
-from . import colors, validators
-from .base_generator import BaseGenerator
-from .color_with_bg import ColorWithBackground
+from . import color_spaces, exceptions, validators
+from .color import Color, ColorType, ColorWithBackground, ColorWithoutBackground, color
+from .color_generator import ColorGenerator
+from .color_space import ColorSpace
 from .numeric import (
     Float01,
     Float8,
@@ -14,14 +15,18 @@ from .numeric import (
     Zd50,
     Zd65,
 )
-from .space import BaseColorSpace
 
 __all__ = [
     "validators",
-    "colors",
-    "BaseColorSpace",
-    "BaseGenerator",
+    "exceptions",
+    "color_spaces",
+    "color",
+    "Color",
+    "ColorWithoutBackground",
     "ColorWithBackground",
+    "ColorType",
+    "ColorSpace",
+    "ColorGenerator",
     "Float01",
     "Float8",
     "Float100",

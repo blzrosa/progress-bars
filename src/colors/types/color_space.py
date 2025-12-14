@@ -2,11 +2,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Tuple
 
-from .numeric import Uint8
+from .numeric import Float01, Uint8
 
 
 @dataclass
-class BaseColorSpace(ABC):
+class ColorSpace(ABC):
+    alpha: Float01
+
     @abstractmethod
     def to_rgb(self) -> Tuple[Uint8, Uint8, Uint8]:
         raise NotImplementedError

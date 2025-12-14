@@ -1,7 +1,7 @@
 from ast import literal_eval
 from typing import Optional, Tuple, get_args
 
-from src.colors.types.space import BaseColorSpace
+from src.colors.types.color_space import ColorSpace
 
 
 def generate_title_description(
@@ -114,7 +114,7 @@ def generate_space_docstring(
 
 
 def get_annotations(
-    cls: BaseColorSpace,
+    cls: ColorSpace,
 ) -> tuple[dict[str, str], dict[str, tuple[int | float, int | float]]]:
     properties: dict[str, property] = {
         name: attr
@@ -138,7 +138,7 @@ def get_annotations(
 
 
 def generate_colorclass_docstring(
-    cls: BaseColorSpace,
+    cls: ColorSpace,
     attr_mapping: Optional[dict[str, str]] = None,
 ) -> str:
     name: str = cls.__name__
@@ -148,7 +148,7 @@ def generate_colorclass_docstring(
 
 
 if __name__ == "__main__":
-    from src.colors.types.colors import (
+    from src.colors.types.color_spaces import (
         A98RGB,
         CIELAB,
         CMYK,

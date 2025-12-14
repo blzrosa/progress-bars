@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import Iterator
+from typing import Generic, Iterator
 
-from .color_with_bg import ColorWithBackground
+from .color import ColorType
 
 
-class BaseGenerator(ABC):
+class ColorGenerator(ABC, Generic[ColorType]):
     @abstractmethod
     def __len__(self) -> int:
         raise NotImplementedError
 
     @abstractmethod
-    def __iter__(self) -> Iterator[ColorWithBackground]:
+    def __iter__(self) -> Iterator[ColorType]:
         raise NotImplementedError
