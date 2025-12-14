@@ -44,7 +44,7 @@ class BarBackend:
             raise ValueError("size must be >= 1")
         self.size: int = len(generator)
 
-        self.gradient_colors: list[Color] = list(generator)
+        self.gradient_colors: list[Color] = list(generator.no_background())
 
         self.colored_blocks: list[str] = [
             f"\033[{color}m█" for color in self.gradient_colors
