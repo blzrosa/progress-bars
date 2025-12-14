@@ -1,8 +1,6 @@
 from typing import Iterator
 
-from src.colors.types.numeric import Float01
-
-from .types.color_with_bg import ColorWithBackground
+from .types import BaseGenerator, ColorWithBackground, Float01
 from .types.colors import sRGB
 
 
@@ -13,7 +11,7 @@ class Pallete:
         positions: list[Float01] | None = None,
     ) -> None:
         if positions is None:
-            _positions = [i / (len(colors) - 1) for i in range(len(colors))]
+            _positions = [i / (len(colors)) for i in range(1, len(colors) + 1)]
         else:
             if len(positions) != len(colors):
                 raise ValueError("Length of positions must match length of colors")
@@ -50,12 +48,10 @@ class Pallete:
         pos1, color1 = self.color_positions[lo]
         if pos1 == pos0:
             return color1
-        dist0 = abs(pos0 - t)
-        dist1 = abs(pos1 - t)
-        return color0 if dist0 < dist1 else color1
+        return color1
 
 
-class PalleteGenerator:
+class PalleteGenerator(BaseGenerator):
     def __init__(
         self,
         count: int,

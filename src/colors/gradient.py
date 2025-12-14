@@ -1,8 +1,6 @@
 from typing import Iterator
 
-from src.colors.types.numeric import Float01
-
-from .types.color_with_bg import ColorWithBackground
+from .types import BaseGenerator, ColorWithBackground, Float01
 from .types.colors import sRGB
 
 
@@ -55,7 +53,7 @@ class Gradient:
         return color0.interpolate(color1, ratio)
 
 
-class GradientGenerator:
+class GradientGenerator(BaseGenerator):
     def __init__(
         self,
         count: int,
