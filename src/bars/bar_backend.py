@@ -1,11 +1,11 @@
 from time import sleep
 from typing import Iterator, Literal
 
-from src.colors.color import ColorGenerator
-from src.colors.gradient import GradientGenerator
-from src.colors.pallete import PalleteGenerator
-from src.colors.types import BaseGenerator, ColorWithBackground
-from src.colors.types.colors import sRGB
+from src.colors.gradient import Gradient, GradientGenerator
+from src.colors.pallete import Pallete, PalleteGenerator
+from src.colors.static_color import ColorGenerator, StaticColorGenerator
+from src.colors.types import Color, color
+from src.colors.types.color_spaces import sRGB
 
 
 # TODO: Implement partial rendering in bar
@@ -35,7 +35,7 @@ class BarBackend:
     def __init__(
         self,
         iterations: int,
-        generator: BaseGenerator,
+        generator: ColorGenerator,
     ) -> None:
         if iterations <= 0:
             raise ValueError("iterations must be >= 1")
@@ -44,7 +44,7 @@ class BarBackend:
             raise ValueError("size must be >= 1")
         self.size: int = len(generator)
 
-        self.gradient_colors: list[ColorWithBackground] = list(generator)
+        self.gradient_colors: list[Color] = list(generator)
 
         self.colored_blocks: list[str] = [
             f"\033[{color}m█" for color in self.gradient_colors
@@ -96,21 +96,24 @@ class BarBackend:
 
 if __name__ == "__main__":
     color_black = sRGB(0, 0, 0)
-    light_blue = ColorWithBackground(sRGB(91, 206, 250), color_black)
-    pink = ColorWithBackground(sRGB(245, 169, 184), color_black)
-    white = ColorWithBackground(sRGB(255, 255, 255), color_black)
-    red_on_black = ColorWithBackground(sRGB(255, 0, 0), sRGB(0, 0, 0))
-    green_on_white = ColorWithBackground(sRGB(0, 255, 0), sRGB(255, 255, 255))
+    light_blue = color(sRGB(91, 206, 250), color_black)
+    pink = color(sRGB(245, 169, 184), color_black)
+    white = color(sRGB(255, 255, 255), color_black)
+    red_on_black = color(sRGB(255, 0, 0), sRGB(0, 0, 0))
+    green_on_white = color(sRGB(0, 255, 0), sRGB(255, 255, 255))
 
     bars = [
-        BarBackend(100, GradientGenerator(50, red_on_black, green_on_white)),
-        BarBackend(100, ColorGenerator(50, white)),
+        BarBackend(100, GradientGenerator(50, Gradient(red_on_black, green_on_white))),
+        BarBackend(100, StaticColorGenerator(50, white)),
         BarBackend(
-            100, PalleteGenerator(50, light_blue, pink, white, pink, light_blue)
+            100,
+            PalleteGenerator(50, Pallete(light_blue, pink, white, pink, light_blue)),
         ),
         BarBackend(
             100,
-            PalleteGenerator(50, red_on_black, green_on_white, light_blue, repeat=True),
+            PalleteGenerator(
+                50, Pallete(red_on_black, green_on_white, light_blue), repeat=True
+            ),
         ),
     ]
 

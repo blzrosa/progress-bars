@@ -1,22 +1,22 @@
 from time import sleep, time
 from typing import Iterator, Optional
 
-from src.colors.color import ColorGenerator
-from src.colors.gradient import GradientGenerator
-from src.colors.types import BaseGenerator, ColorWithBackground
-from src.colors.types.colors import sRGB
+from src.colors.gradient import Gradient, GradientGenerator
+from src.colors.static_color import StaticColorGenerator
+from src.colors.types import ColorGenerator, color
+from src.colors.types.color_spaces import sRGB
 
 from .bar_backend import BarBackend
 
-WHITE_BLACK_BG = ColorWithBackground(sRGB(255, 255, 255), sRGB(0, 0, 0))
-DEFAULT_WHITE_BAR = ColorGenerator(50, WHITE_BLACK_BG)
+WHITE_BLACK_BG = color(sRGB(255, 255, 255), sRGB(0, 0, 0))
+DEFAULT_WHITE_BAR = StaticColorGenerator(50, WHITE_BLACK_BG)
 
 
 class FastBar:
     def __init__(
         self,
         iterations: int,
-        generator: BaseGenerator = DEFAULT_WHITE_BAR,
+        generator: ColorGenerator = DEFAULT_WHITE_BAR,
         update_every: Optional[int] = 1,
     ) -> None:
         self.backend = BarBackend(iterations, generator)
@@ -54,9 +54,9 @@ class FastBar:
 
 
 if __name__ == "__main__":
-    red_on_black = ColorWithBackground(sRGB(255, 0, 0), sRGB(0, 0, 0))
-    green_on_white = ColorWithBackground(sRGB(0, 255, 0), sRGB(255, 255, 255))
-    red_green_gradient = GradientGenerator(25, red_on_black, green_on_white)
+    red_on_black = color(sRGB(255, 0, 0), sRGB(0, 0, 0))
+    green_on_white = color(sRGB(0, 255, 0), sRGB(255, 255, 255))
+    red_green_gradient = GradientGenerator(25, Gradient(red_on_black, green_on_white))
     bar = FastBar(1000, red_green_gradient)
     bar_no_speed = FastBar(1000, red_green_gradient, update_every=None)
 
