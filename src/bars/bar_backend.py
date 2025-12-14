@@ -108,10 +108,10 @@ class BarBackend:
 
 
 if __name__ == "__main__":
-    color_black = sRGB(0, 0, 0)
-    light_blue = color(sRGB(91, 206, 250), color_black)
-    pink = color(sRGB(245, 169, 184), color_black)
-    white = color(sRGB(255, 255, 255), color_black)
+    light_blue = color(sRGB(91, 206, 250))
+    pink = color(sRGB(245, 169, 184))
+    white = color(sRGB(255, 255, 255))
+    black_on_white = color(sRGB(0, 0, 0), sRGB(255, 255, 255))
     red_on_black = color(sRGB(255, 0, 0), sRGB(0, 0, 0))
     green_on_white = color(sRGB(0, 255, 0), sRGB(255, 255, 255))
 
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         BarBackend(
             100,
             PalleteGenerator(
-                50, Pallete(red_on_black, green_on_white, light_blue), repeat=True
+                50, Pallete(black_on_white, red_on_black, green_on_white), repeat=True
             ),
         ),
     ]
