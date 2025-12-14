@@ -1,22 +1,25 @@
 from time import sleep, time
 from typing import Iterator, Optional
 
-from src.colors.gradient import ColorWithBackground
+from src.colors.color import ColorGenerator
+from src.colors.gradient import GradientGenerator
+from src.colors.types import BaseGenerator, ColorWithBackground
 from src.colors.types.colors import sRGB
 
 from .bar_backend import BarBackend
+
+WHITE_BLACK_BG = ColorWithBackground(sRGB(255, 255, 255), sRGB(0, 0, 0))
+DEFAULT_WHITE_BAR = ColorGenerator(50, WHITE_BLACK_BG)
 
 
 class FastBar:
     def __init__(
         self,
         iterations: int,
-        size: int = 50,
+        generator: BaseGenerator = DEFAULT_WHITE_BAR,
         update_every: Optional[int] = 1,
-        *args,
-        **kwargs,
     ) -> None:
-        self.backend = BarBackend(iterations, size, *args, **kwargs)
+        self.backend = BarBackend(iterations, generator)
         self.update_every = update_every
         self.last_stats = "0.0it/s | ETA ?:??"
         self.frame_count = 0
@@ -53,16 +56,17 @@ class FastBar:
 if __name__ == "__main__":
     red_on_black = ColorWithBackground(sRGB(255, 0, 0), sRGB(0, 0, 0))
     green_on_white = ColorWithBackground(sRGB(0, 255, 0), sRGB(255, 255, 255))
-    bar = FastBar(1000, 25, 1, red_on_black, green_on_white)
-    bar_no_speed = FastBar(1000, 25, None, red_on_black, green_on_white)
+    red_green_gradient = GradientGenerator(25, red_on_black, green_on_white)
+    bar = FastBar(1000, red_green_gradient)
+    bar_no_speed = FastBar(1000, red_green_gradient, update_every=None)
 
     for bar_str in bar:
         print(f"\r\033[2K{bar_str}", end="", flush=True)
-        sleep(0.0001)
+        sleep(0.0002)
 
     for bar_str in bar_no_speed:
         print(f"\r\033[2K{bar_str}", end="", flush=True)
-        sleep(0.0001)
+        sleep(0.0002)
 
     a = time()
     for _ in range(100):
