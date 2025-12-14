@@ -1,4 +1,5 @@
 from . import colors, validators
+from .base_generator import BaseGenerator
 from .color_with_bg import ColorWithBackground
 from .numeric import (
     Float01,
@@ -19,6 +20,7 @@ __all__ = [
     "validators",
     "colors",
     "BaseColorSpace",
+    "BaseGenerator",
     "ColorWithBackground",
     "Float01",
     "Float8",
