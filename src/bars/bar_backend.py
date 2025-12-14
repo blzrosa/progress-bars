@@ -1,5 +1,5 @@
 from time import sleep
-from typing import Iterator, Literal
+from typing import Iterator
 
 from src.colors.gradient import Gradient, GradientGenerator
 from src.colors.pallete import Pallete, PalleteGenerator
@@ -8,8 +8,7 @@ from src.colors.types import Color, color
 from src.colors.types.color_spaces import sRGB
 
 
-# TODO: Implement partial rendering in bar
-def partial_block(eights: Literal[0, 1, 2, 3, 4, 5, 6, 7, 8] = 8) -> str:
+def partial_block(eights: int = 8) -> str:
     match eights:
         case 0:
             return " "
@@ -27,7 +26,7 @@ def partial_block(eights: Literal[0, 1, 2, 3, 4, 5, 6, 7, 8] = 8) -> str:
             return "▊"
         case 7:
             return "▉"
-        case 8:
+        case _:
             return "█"
 
 
@@ -43,6 +42,7 @@ class BarBackend:
         if len(generator) <= 0:
             raise ValueError("size must be >= 1")
         self.size: int = len(generator)
+        self.bins: int = 8 * self.size
 
         self.gradient_colors: list[Color] = list(generator.no_background())
 
@@ -64,16 +64,29 @@ class BarBackend:
     def _build_visual(self, filled: int) -> str:
         if filled <= 0:
             return self.unfilled_block * self.size + "\033[0m"
-        if filled >= self.size:
+        if filled >= self.bins:
             return "".join(self.colored_blocks) + "\033[0m"
 
-        revealed = "".join(self.colored_blocks[:filled])
-        unfilled = self.unfilled_block * (self.size - filled)
-        return revealed + "\033[0m" + unfilled + "\033[0m"
+        actual_filed = filled // 8
+        partial_eights = filled % 8
+
+        revealed = "".join(self.colored_blocks[:actual_filed])
+
+        if partial_eights > 0:
+            partial = self.colored_blocks[actual_filed].replace(
+                "█", partial_block(partial_eights)
+            )
+            unfilled_count = self.size - actual_filed - 1
+        else:
+            partial = ""
+            unfilled_count = self.size - actual_filed
+
+        unfilled = self.unfilled_block * unfilled_count
+        return revealed + partial + unfilled + "\033[0m"
 
     def generate_bar(self, iteration: int) -> str:
         ratio = iteration / self.iterations if self.iterations > 0 else 1.0
-        filled = min(int(ratio * self.size + 1e-9), self.size)
+        filled = min(int(ratio * self.bins + 1e-9), self.bins)
 
         if filled != self._cached_filled:
             self._cached_filled = filled

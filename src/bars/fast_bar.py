@@ -62,11 +62,11 @@ if __name__ == "__main__":
 
     for bar_str in bar:
         print(f"\r\033[2K{bar_str}", end="", flush=True)
-        sleep(0.0002)
+        sleep(0.001)
 
     for bar_str in bar_no_speed:
         print(f"\r\033[2K{bar_str}", end="", flush=True)
-        sleep(0.0002)
+        sleep(0.001)
 
     a = time()
     for _ in range(100):
