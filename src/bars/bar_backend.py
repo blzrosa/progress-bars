@@ -51,7 +51,7 @@ class BarBackend:
         ]
 
         # Unfilled style
-        self.unfilled_char = " "
+        self.unfilled_char = "░"
         self.unfilled_block = "\033[38;2;90;90;90m" + self.unfilled_char
 
         self._cached_filled: int = -1
