@@ -108,8 +108,9 @@ class BarBackend:
 
 
 if __name__ == "__main__":
-    light_blue = color(sRGB(91, 206, 250))
-    pink = color(sRGB(245, 169, 184))
+    green_base = color(sRGB(0, 255, 0))
+    yellow_base = color(sRGB(255, 255, 0))
+    blue_base = color(sRGB(0, 0, 255))
     white = color(sRGB(255, 255, 255))
     black_on_white = color(sRGB(0, 0, 0), sRGB(255, 255, 255))
     red_on_black = color(sRGB(255, 0, 0), sRGB(0, 0, 0))
@@ -120,7 +121,7 @@ if __name__ == "__main__":
         BarBackend(100, StaticColorGenerator(50, white)),
         BarBackend(
             100,
-            PalleteGenerator(50, Pallete(light_blue, pink, white, pink, light_blue)),
+            PalleteGenerator(50, Pallete(green_base, yellow_base, blue_base, yellow_base, green_base)),
         ),
         BarBackend(
             100,
